@@ -1,0 +1,20 @@
+I want to install openshift in IPI method in air gapped env in Vsphere give document suggest that it should have CLI access But want it to be in complete GUI form of install and want cluster with HA proxy as a LB 
+
+the cluster is installed in single zone and single cluster of vSphere and want to Can I upload the OVA priorly in content library of the Vsphere if yes give that procedure
+
+
+I already have procedure for HA Proxy LB and mirror registry please give me procedure to build opensnshift cluster 
+
+please give all ports need to be open in NSX level for smooth communication as below table format 
+
+
+source 		destination 		port 		purpose 
+
+
+
+
+what are the DNS entries needed to be listed for all master worker ingress bastion and anything needed
+
+importantly a production safe procedure 
+
+please give me all DNS entries needed to be done

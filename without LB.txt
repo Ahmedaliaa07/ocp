@@ -1,0 +1,114 @@
+apiVersion: v1
+baseDomain: example.com
+metadata:
+  name: ocp-cluster
+
+controlPlane:
+  name: master
+  replicas: 3
+  platform:
+    vsphere:
+      cpus: 8
+      coresPerSocket: 2
+      memoryMB: 16384
+      osDisk:
+        diskSizeGB: 120
+
+compute:
+- name: worker
+  replicas: 2
+  platform:
+    vsphere:
+      cpus: 8
+      coresPerSocket: 2
+      memoryMB: 16384
+      osDisk:
+        diskSizeGB: 120
+
+networking:
+  networkType: OVNKubernetes
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  serviceNetwork:
+  - 172.30.0.0/16
+  machineNetwork:
+  - cidr: 192.17.31.0/24
+
+platform:
+  vsphere:
+    apiVIPs:
+    - 192.17.31.138
+    ingressVIPs:
+    - 192.17.31.139
+    diskType: thin
+    vcenters:
+    - server: <vcenter-fqdn>
+      user: "<svc-account>@vsphere.local"
+      password: "<password>"
+      port: 443
+      datacenters:
+      - <datacenter>
+    failureDomains:
+    - name: fd-1
+      region: region-default
+      zone: zone-default
+      server: <vcenter-fqdn>
+      topology:
+        datacenter: <datacenter>
+        computeCluster: "/<datacenter>/host/<cluster>"
+        datastore: "/<datacenter>/datastore/<datastore>"
+        networks:
+        - "<port-group>"
+        folder: "/<datacenter>/vm/<folder>"
+        resourcePool: "/<datacenter>/host/<cluster>/Resources/<pool>"
+        template: "/<datacenter>/vm/templates/rhcos-420"
+    hosts:
+    - role: bootstrap
+      networkDevice:
+        ipAddrs: [192.17.31.10/24]
+        gateway: 192.17.31.1
+        nameservers: [192.17.31.2]
+    - role: control-plane
+      networkDevice:
+        ipAddrs: [192.17.31.11/24]
+        gateway: 192.17.31.1
+        nameservers: [192.17.31.2]
+    - role: control-plane
+      networkDevice:
+        ipAddrs: [192.17.31.12/24]
+        gateway: 192.17.31.1
+        nameservers: [192.17.31.2]
+    - role: control-plane
+      networkDevice:
+        ipAddrs: [192.17.31.13/24]
+        gateway: 192.17.31.1
+        nameservers: [192.17.31.2]
+    - role: compute
+      networkDevice:
+        ipAddrs: [192.17.31.14/24]
+        gateway: 192.17.31.1
+        nameservers: [192.17.31.2]
+    - role: compute
+      networkDevice:
+        ipAddrs: [192.17.31.15/24]
+        gateway: 192.17.31.1
+        nameservers: [192.17.31.2]
+
+pullSecret: '{"auths":{"<mirror-fqdn>:8443":{"auth":"<base64-creds>"}}}'
+sshKey: 'ssh-ed25519 AAAA...'
+additionalTrustBundle: |
+  -----BEGIN CERTIFICATE-----
+  <Mirror Registry Root CA and Private vCenter CA PEM>
+  -----END CERTIFICATE-----
+additionalTrustBundlePolicy: Always
+imageDigestSources:
+- mirrors:
+  - <mirror-fqdn>:8443/ocp4/openshift4
+  source: quay.io/openshift-release-dev/ocp-release
+- mirrors:
+  - <mirror-fqdn>:8443/ocp4/openshift4
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+
+
+
